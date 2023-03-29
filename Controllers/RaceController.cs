@@ -1,27 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RunGroopWebApp.Data;
+using RunGroopWebApp.Interfaces;
 using RunGroopWebApp.Models;
 
 namespace RunGroopWebApp.Controllers
 {
     public class RaceController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IRaceRepository _raceRepository;
 
-        public RaceController(ApplicationDbContext db)
+        public RaceController(IRaceRepository raceRepository)
         {
-            _db = db;
+            _raceRepository = raceRepository;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<Race> races =_db.Races.ToList();
+            IEnumerable<Race> races = await _raceRepository.GetAll();
             return View(races);
         }
 
-        public IActionResult Detail(int id)
+        public async Task<IActionResult> Detail(int id)
         {
-            var race = _db.Races.Include(a => a.Address).FirstOrDefault(c => c.Id == id);
+            var race = await _raceRepository.GetByIdAsync(id);
             return View(race);
         }
     }
